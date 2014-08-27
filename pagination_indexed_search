@@ -1,0 +1,52 @@
+ //replace la pagination par du javascript
+if ($("ul.browsebox").length) {
+    $(".tx-indexedsearch").removeClass("tx-indexedsearch");
+    $("ul.browsebox").each(function() {
+
+        var goodPages = new Array();
+        var activePage = 0;
+        var enablePrecedent = true;
+        var enableNext = true;
+
+        $(this).removeClass("browsebox").addClass("pagination");
+        var lis = $(this).find("li");
+        for (var i = 0; i < lis.length; i++) {
+            if (i == 0 && $(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
+                enablePrecedent = false;
+                activePage = 0;
+                goodPages.push(lis[i]);
+            } else if (i > 0 &&  i < lis.length - 1) {
+                goodPages.push(lis[i]);
+
+            } else if (i == lis.length - 1 && $(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
+                activePage = lis.length - 1;
+                goodPages.push(lis[i]);
+                enableNext = false;
+            }
+        }
+
+        $(this).empty();
+        var inactiveclassPrecedent = (!enablePrecedent) ? " is-inactive" : "";
+        var onclickPrecedent = (enablePrecedent) ? "document.getElementById('tx_indexedsearch_pointer').value='0';document.getElementById('tx_indexedsearch_freeIndexUid').value='-1';document.getElementById('tx_indexedsearch').submit();return false;" : "";
+        $(this).append('<li class="pagination-precedent' + inactiveclassPrecedent + '"><a href="#" onclick="' + onclickPrecedent + '">Page précédente</a></li>');
+
+        for (var i = 0; i < goodPages.length; i++) {
+            var page = goodPages[i]
+            $(page).addClass("pagination-page");
+            if ($(page).hasClass("tx-indexedsearch-browselist-currentPage")) {
+                $(page).removeAttr("onclick");
+                $(page).removeClass("tx-indexedsearch-browselist-currentPage").addClass("is-active");
+            }
+
+            var text = $("a", page).html();
+            text = text.replace("Page ", '<span class="visuallyhidden">Page </span>');
+            $("a", page).html(text);
+
+            $(this).append(page);
+        }
+
+        var inactiveclassSuivant = (!enableNext) ? " is-inactive" : "";
+        var onclickSuivant = (enableNext) ? "document.getElementById('tx_indexedsearch_pointer').value='1';document.getElementById('tx_indexedsearch_freeIndexUid').value='-1';document.getElementById('tx_indexedsearch').submit();return false;" : "";
+        $(this).append('<li class="pagination-suivant' + inactiveclassSuivant + '"><a href="#" onclick="' + onclickSuivant + '">Page suivante</a></li>');
+    });
+}
