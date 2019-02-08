@@ -1,0 +1,102 @@
+/**
+ * Global variables
+ */
+"use strict";
+
+var userAgent = navigator.userAgent.toLowerCase(),
+	initialDate = new Date(),
+
+	$document = $(document),
+	$window = $(window),
+	$html = $("html"),
+
+	isDesktop = $html.hasClass("desktop"),
+	isIE = userAgent.indexOf("msie") != -1 ? parseInt(userAgent.split("msie")[1]) : userAgent.indexOf("trident") != -1 ? 11 : userAgent.indexOf("edge") != -1 ? 12 : false,
+	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+	isTouch = "ontouchstart" in window,
+	c3ChartsArray = [],
+	livedemo = true,
+	isNoviBuilder,
+
+	plugins = {
+		pointerEvents: isIE < 11 ? "js/pointer-events.min.js" : false,
+		bootstrapTooltip: $("[data-toggle='tooltip']"),
+		bootstrapTabs: $(".tabs"),
+		ulbrowsebox: $("ul.tx-indexedsearch-browsebox"),lightGallery: $("[data-lightgallery='group']"),
+		lightGalleryItem: $("[data-lightgallery='item']"),
+		lightDynamicGalleryItem: $("[data-lightgallery='dynamic']")
+	};
+ 
+$document.ready( function () {
+
+	  // replace TYPO3 tx_indexed_search pagination by javascript
+   // initial script was taken from https://gist.github.com/manuelbergeron/08de1d2c7f29060f2dcf
+	  // and edited by Oleg Ilyasov to suit custom bootstrap pagination for "use strict" jQ.3.2.1
+	  if (plugins.ulbrowsebox.length) {
+	  	$(".tx-indexedsearch-browsebox").addClass("pagination pagination-lg justify-content-center");
+	  	$(".tx-indexedsearch-browsebox").each(function () {
+	  		var goodPages = new Array();
+	  		var activePage = 0;
+	  		var enablePrevious = true;
+	  		var enableNext = true;
+	  		$(this).removeClass("browsebox").addClass("pagination pagination-lg justify-content-center");
+	  		var lis = $(this).find("li");
+	  		for (var i = 0; i < lis.length; i++) {
+	  			if (i == 0 && $(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
+	  				enablePrevious = false;
+	  				activePage = 0;
+	  				goodPages.push(lis[i]);
+	  			} else if (i > 0 && i < lis.length - 1) {
+					if ($(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
+						activePage = i;
+					}
+	  				goodPages.push(lis[i]);
+	  			} else if (i == lis.length - 1 && $(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
+	  				activePage = lis.length - 1;
+	  				goodPages.push(lis[i]);
+	  				enableNext = false;
+	  			}
+				var previousPageID = activePage - 2;
+				var nextPageID = activePage + 1;
+	  		}
+	  		$(this).empty();
+			
+	  		var inactiveclassPrevious = (!enablePrevious) ? " invisible" : "";
+	  		$(this).append('<li class="page-item ' + inactiveclassPrevious + '"><a class="page-link" href="-1" aria-label="Previous" id="'+previousPageID+'" ><span class="novi-icon mdi mdi-chevron-double-left" aria-hidden="true"></span></a></li>');
+	  		
+			for (var i = 0; i < goodPages.length; i++) {
+	  			var page = goodPages[i]
+
+	  			$(page).addClass("page-item");
+	  			if ($(page).hasClass("tx-indexedsearch-browselist-currentPage")) {
+					$("a", page).unwrap();
+	  				$(page).removeClass("tx-indexedsearch-browselist-currentPage").addClass("active");
+	  			}
+	  			var text = $("a", page).html();
+	  			text = text.replace("Page ", '');
+	  			$("a", page).html(text).addClass("page-link");
+				$("a", page).removeAttr("onclick");
+				// $("a", page).prop( "onclick", null );
+	  			$("a", page).attr('id', i);
+          		$("a", page).attr('href', '#');	
+	  			$(this).append(page);
+	  		}
+			
+	  		var inactiveclassSuivant = (!enableNext) ? " invisible" : "";
+	  		$(this).append('<li class="page-item ' + inactiveclassSuivant + '"><a class="page-link" href="-1" aria-label="Next" id="'+nextPageID+'"><span class="novi-icon mdi mdi-chevron-double-right" aria-hidden="true"></span></a></li>');
+
+	  	});
+	  }
+
+	  $("a.page-link").click(function(e){
+		  e.preventDefault();
+		  $("input#tx_indexedsearch_freeIndexUid").val('');
+		  var srchpointer = $(this).attr('id');  // this.id;
+		  var srchfreeIndUid =  $(this).attr('href'); 
+		  $("input#tx_indexedsearch_pointer").val(srchpointer);
+		  $("input#tx_indexedsearch_freeIndexUid").val(srchfreeIndUid);
+		  $("form#tx_indexedsearch").submit();
+		  return false;	
+	  });
+	
+});
