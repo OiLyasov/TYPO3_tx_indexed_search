@@ -78,7 +78,7 @@ $document.ready( function () {
 				$("a", page).removeAttr("onclick");
 				// $("a", page).prop( "onclick", null );
 	  			$("a", page).attr('id', i);
-          		$("a", page).attr('href', '#');	
+          			$("a", page).attr('href', '#');	
 	  			$(this).append(page);
 	  		}
 			
