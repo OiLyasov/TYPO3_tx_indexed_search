@@ -29,10 +29,10 @@ var userAgent = navigator.userAgent.toLowerCase(),
  
 $document.ready( function () {
 
-	  // replace TYPO3 tx_indexed_search pagination by javascript
-   // initial script was taken from https://gist.github.com/manuelbergeron/08de1d2c7f29060f2dcf
-	  // and edited by Oleg Ilyasov to suit custom bootstrap pagination for "use strict" jQ.3.2.1
-	  if (plugins.ulbrowsebox.length) {
+  //replace TYPO3 pagination by javascript
+  // OIL Oleg Ilyasov Copyrighted
+
+  if (plugins.ulbrowsebox.length) {
 	  	$(".tx-indexedsearch-browsebox").addClass("pagination pagination-lg justify-content-center");
 	  	$(".tx-indexedsearch-browsebox").each(function () {
 	  		var goodPages = new Array();
@@ -48,22 +48,21 @@ $document.ready( function () {
 	  				goodPages.push(lis[i]);
 	  			} else if (i > 0 && i < lis.length - 1) {
 					if ($(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
-						activePage = i;
+						// activePage = i - 1;
+						var pnumtext = $("a", lis[i]).html();
+						activePage = Number(pnumtext.replace("Page ", ''));
 					}
 	  				goodPages.push(lis[i]);
 	  			} else if (i == lis.length - 1 && $(lis[i]).hasClass("tx-indexedsearch-browselist-currentPage")) {
-	  				activePage = lis.length - 1;
+	  				// activePage = lis.length - 2;
 	  				goodPages.push(lis[i]);
 	  				enableNext = false;
 	  			}
 				var previousPageID = activePage - 2;
-				var nextPageID = activePage + 1;
+				var nextPageID = activePage;
 	  		}
 	  		$(this).empty();
-			
-	  		var inactiveclassPrevious = (!enablePrevious) ? " invisible" : "";
-	  		$(this).append('<li class="page-item ' + inactiveclassPrevious + '"><a class="page-link" href="-1" aria-label="Previous" id="'+previousPageID+'" ><span class="novi-icon mdi mdi-chevron-double-left" aria-hidden="true"></span></a></li>');
-	  		
+			 
 			for (var i = 0; i < goodPages.length; i++) {
 	  			var page = goodPages[i]
 
@@ -73,22 +72,29 @@ $document.ready( function () {
 	  				$(page).removeClass("tx-indexedsearch-browselist-currentPage").addClass("active");
 	  			}
 	  			var text = $("a", page).html();
-	  			text = text.replace("Page ", '');
+				text = text.replace("Page ", '');
 	  			$("a", page).html(text).addClass("page-link");
-				$("a", page).removeAttr("onclick");
+				// $("a", page).removeAttr("onclick");
 				// $("a", page).prop( "onclick", null );
 	  			$("a", page).attr('id', i);
-          			$("a", page).attr('href', '#');	
+          		$("a", page).attr('href', '#');	
 	  			$(this).append(page);
 	  		}
+			var previousPageID = (!enableNext) ? "0" : previousPageID;
+			var nextPageID = (!enablePrevious) ? "1" : nextPageID;
 			
+			var inactiveclassPrevious = (!enablePrevious) ? " invisible" : "";
+
+	  		$(this).prepend('<li class="page-item ' + inactiveclassPrevious + '"><a class="page-link shevrons" href="-1" aria-label="Previous" id="'+previousPageID+'" ><span class="novi-icon mdi mdi-chevron-double-left" aria-hidden="true"></span></a></li>');
+
 	  		var inactiveclassSuivant = (!enableNext) ? " invisible" : "";
-	  		$(this).append('<li class="page-item ' + inactiveclassSuivant + '"><a class="page-link" href="-1" aria-label="Next" id="'+nextPageID+'"><span class="novi-icon mdi mdi-chevron-double-right" aria-hidden="true"></span></a></li>');
 
+	  		$(this).append('<li class="page-item ' + inactiveclassSuivant + '"><a class="page-link shevrons" href="-1" aria-label="Next" id="'+nextPageID+'"><span class="novi-icon mdi mdi-chevron-double-right" aria-hidden="true"></span></a></li>');
+			
 	  	});
-	  }
-
-	  $("a.page-link").click(function(e){
+  }
+	
+  $("a.shevrons").click(function(e){
 		  e.preventDefault();
 		  $("input#tx_indexedsearch_freeIndexUid").val('');
 		  var srchpointer = $(this).attr('id');  // this.id;
@@ -97,6 +103,6 @@ $document.ready( function () {
 		  $("input#tx_indexedsearch_freeIndexUid").val(srchfreeIndUid);
 		  $("form#tx_indexedsearch").submit();
 		  return false;	
-	  });
+  });
 	
 });
